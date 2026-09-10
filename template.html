@@ -400,7 +400,8 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
   const anahtar = (k) => k.slice(0, 64);
 
   // oturum başına bir ziyaret, tarayıcı başına bir tekil ziyaretçi
-  let yeniOturum = true, yeniTarayici = false;
+  const sahip = location.hash === PANEL_HASH; // panel ekiyle gelen (site sahibi) sayılmaz
+  let yeniOturum = !sahip, yeniTarayici = false;
   try { if (sessionStorage.getItem('sd-sayildi')) yeniOturum = false; else sessionStorage.setItem('sd-sayildi', '1'); } catch (e) {}
   try { if (!localStorage.getItem('sd-ilk')) { localStorage.setItem('sd-ilk', '1'); yeniTarayici = true; } } catch (e) {}
   if (yeniOturum) { hit('ziyaret'); hit('z-' + gun(new Date())); }
@@ -409,7 +410,7 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
   // aktif süre: sekme görünürken her 30 sn bir tık, oturum başına en çok 40 (20 dk)
   let tik = 0;
   setInterval(() => {
-    if (document.visibilityState === 'visible' && tik < 40) { tik++; hit('sure30'); hit('s-' + gun(new Date())); }
+    if (!sahip && document.visibilityState === 'visible' && tik < 40) { tik++; hit('sure30'); hit('s-' + gun(new Date())); }
   }, 30000);
 
   // kart açılışları (dialog kodu window.olcum'u çağırır)

@@ -1,4 +1,4 @@
-# Weather Literacy — Hava Okuryazarlığı Bilgi Kartları
+# Sky Decoder — Hava Okuryazarlığı Bilgi Kartları
 
 Bu klasör, siteyi oluşturacak `.md` kart dosyalarını içerir. Her dosya bir kategori, her `## ` başlığı bir karttır.
 Astro / Next.js / Hugo gibi statik site üreticileri bu dosyaları doğrudan okuyabilir.
@@ -61,6 +61,6 @@ Her dosyanın başındaki YAML bloğu kategori, seviye ve etiketleri taşır. As
 python3 build.py        # site/index.html ve site/kartlar.json üretir
 ```
 
-Kaynak: https://github.com/gyenihayat/weather-literacy
-Yayın: https://weather-literacy.vercel.app — `main` dalına her push Vercel'de otomatik yayınlanır.
+Kaynak: https://github.com/gyenihayat/skydecoder
+Yayın: https://skydecoder.vercel.app — `main` dalına her push Vercel'de otomatik yayınlanır.
 İstatistik sayfası `/istatistik`; veriyi Upstash Redis'te tutar (`KV_REST_API_URL`, `KV_REST_API_TOKEN`).

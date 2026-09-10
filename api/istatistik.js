@@ -39,6 +39,13 @@ function govde(req) {
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
+  if (req.method !== 'POST') {
+    const anahtar = (req.query && req.query.anahtar) || '';
+    if (!process.env.ISTATISTIK_ANAHTAR || anahtar !== process.env.ISTATISTIK_ANAHTAR) {
+      res.status(404).json({ hata: 'Bulunamadı.' });
+      return;
+    }
+  }
   if (!URL_ || !TOKEN) {
     res.status(503).json({ hata: 'Depolama ayarlı değil. Vercel projesine Upstash Redis bağlayın (KV_REST_API_URL / KV_REST_API_TOKEN).' });
     return;
@@ -62,11 +69,6 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const anahtar = (req.query && req.query.anahtar) || '';
-    if (!process.env.ISTATISTIK_ANAHTAR || anahtar !== process.env.ISTATISTIK_ANAHTAR) {
-      res.status(404).json({ hata: 'Bulunamadı.' });
-      return;
-    }
     const gs = gunler(GUN_SAYISI);
     const cmds = [
       ['GET', 'ziyaret:toplam'], ['GET', 'ziyaretci:tekil'], ['GET', 'sure:toplam'], ['GET', 'ist:baslangic'],

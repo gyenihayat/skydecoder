@@ -11,7 +11,7 @@ meteoKnowledge/
 ├── build.py                      ← kartlar/*.md → site/index.html + site/kartlar.json
 ├── template.html                 ← sayfa tasarımı ve etkileşimi (build.py veriyi içine gömer)
 ├── api/istatistik.js             ← ziyaret / kalma süresi sayacı (Vercel Function + Upstash Redis)
-├── site/panel-<anahtar>.html     ← gizli istatistik sayfası (bağlantı yok; anahtar ISTATISTIK_ANAHTAR env ile eşleşmeli)
+├── api/panel.js                  ← gizli istatistik sayfası (/panel-<anahtar>; anahtar ISTATISTIK_ANAHTAR env'de, depoda yok)
 ├── vercel.json
 ├── KART_SABLONU.md               ← yeni kart yazarken / AI agent üretirken kullanılacak şablon
 └── kartlar/

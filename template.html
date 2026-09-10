@@ -167,6 +167,28 @@ tbody tr:last-child td { border-bottom: 0; }
 .d-nav button:disabled { opacity: .4; cursor: default; }
 
 
+/* ---------- Merak ettikleriniz ---------- */
+.merak { max-width: 1180px; margin: 0 auto; padding: 8px 24px 64px; }
+.merak-ic { background: var(--yuzey); border: 1px solid var(--cizgi2); border-radius: 10px; padding: 26px 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 20px 40px; align-items: start; }
+.merak h2 { font-family: var(--baslik); font-weight: 500; font-size: 26px; line-height: 1.15; margin: 0 0 8px; text-wrap: balance; font-variation-settings: "opsz" 72; }
+.merak p { margin: 0; color: var(--murekkep2); max-width: 46ch; }
+.merak form { display: flex; flex-direction: column; gap: 10px; }
+.merak textarea { width: 100%; min-height: 110px; resize: vertical; border: 1px solid var(--cizgi); border-radius: 6px; background: var(--yuzey2); padding: 10px 12px; line-height: 1.5; }
+.merak textarea:focus { outline: 0; border-color: var(--vurgu); box-shadow: 0 0 0 3px var(--vurgu-yumusak); }
+.merak .satir { justify-content: space-between; }
+.merak .ipucu { font-family: var(--mono); font-size: 12px; color: var(--murekkep3); font-variant-numeric: tabular-nums; }
+.merak button { border: 0; background: var(--vurgu); color: var(--vurgu-uzeri); border-radius: 6px; padding: 9px 16px; font-weight: 500; cursor: pointer; }
+.merak button:disabled { opacity: .55; cursor: default; }
+.merak .durum { font-size: 14px; min-height: 1.4em; }
+.merak .durum.ok { color: var(--iyi); }
+.merak .durum.hata { color: var(--kritik); }
+.gizli-alan { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.st-talep { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.st-talep li { background: var(--yuzey2); border: 1px solid var(--cizgi2); border-radius: 6px; padding: 8px 12px; font-size: 14px; }
+.st-talep .z { font-family: var(--mono); font-size: 11.5px; color: var(--murekkep3); margin-right: 8px; }
+.st-arac { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.st-arac a, .st-arac button { font-size: 13px; border: 1px solid var(--cizgi); background: var(--yuzey); border-radius: 6px; padding: 5px 10px; color: var(--murekkep2); text-decoration: none; cursor: pointer; }
+
 /* ---------- İstatistik paneli ---------- */
 .st-kutular { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 18px; }
 .st-kutu { background: var(--yuzey2); border: 1px solid var(--cizgi2); border-radius: 8px; padding: 12px 14px; }
@@ -183,6 +205,8 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
   .alan, .d-alt { grid-template-columns: 1fr; gap: 4px; }
   .d-ust, .d-govde, .d-alt, .d-nav { padding-left: 18px; padding-right: 18px; }
   .sayac { width: 100%; margin-left: 0; }
+  .merak { padding-left: 16px; padding-right: 16px; }
+  .merak-ic { grid-template-columns: 1fr; padding: 20px 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .kart { transition: none; }
@@ -224,6 +248,24 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
 <main>
   <div class="izgara" id="izgara"></div>
 </main>
+
+<section class="merak" id="merak" aria-labelledby="merak-baslik">
+  <div class="merak-ic">
+    <div>
+      <h2 id="merak-baslik">Merak ettikleriniz</h2>
+      <p>Aradığınız konu kartlarda yok mu? Hangi hava olayını merak ettiğinizi yazın; kaynakları karşılaştırıp yeni bir kart olarak ekleyelim.</p>
+    </div>
+    <form id="merak-form" novalidate>
+      <label class="gizli-alan" aria-hidden="true">Web sitesi <input type="text" name="web" tabindex="-1" autocomplete="off"></label>
+      <textarea id="merak-metin" name="metin" maxlength="600" placeholder="Örneğin: Lodos neden İstanbul'u ısıtır? Fırtına öncesi neden basınç düşer?" required></textarea>
+      <div class="satir">
+        <span class="ipucu"><span id="merak-sayac">0</span> / 600</span>
+        <button type="submit" id="merak-gonder">Gönder</button>
+      </div>
+      <div class="durum" id="merak-durum" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
 
 
 <dialog id="dialog" aria-labelledby="d-baslik">
@@ -301,7 +343,7 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
       kelimeler.every((w) => k._metin.includes(w)));
     $('sayac').textContent = `${gorunen.length} / ${KARTLAR.length} kart`;
     if (!gorunen.length) {
-      $('izgara').innerHTML = `<div class="bos"><b>Eşleşen kart yok</b>Aramayı kısaltın ya da kategori ve seviye filtresini kaldırın.</div>`;
+      $('izgara').innerHTML = `<div class="bos"><b>Eşleşen kart yok</b>Aramayı kısaltın ya da filtreleri kaldırın. Konu kartlarda hiç yoksa <a href="#merak" style="color:var(--vurgu-metin)">aşağıya yazın</a>, kart olarak ekleyelim.</div>`;
       return;
     }
     $('izgara').innerHTML = gorunen.map((k) => `
@@ -376,6 +418,26 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
       const b = dialog.querySelectorAll('.d-nav button')[e.key === 'ArrowLeft' ? 0 : 1];
       if (b && !b.disabled) ac(b.dataset.git);
     }
+  });
+
+  // ---- merak ettikleriniz formu ----
+  const mf = $('merak-form'), mm = $('merak-metin'), md = $('merak-durum'), mg = $('merak-gonder');
+  mm.addEventListener('input', () => { $('merak-sayac').textContent = mm.value.length; });
+  mf.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const metin = mm.value.trim();
+    md.className = 'durum';
+    if (metin.length < 5) { md.className = 'durum hata'; md.textContent = 'Biraz daha açık yazar mısınız? En az 5 karakter.'; mm.focus(); return; }
+    mg.disabled = true; md.textContent = 'Gönderiliyor…';
+    try {
+      const r = await fetch('/api/talep', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ metin, web: mf.web.value }) });
+      const v = r.status === 201 ? {} : await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(v.hata || 'Gönderilemedi, biraz sonra yeniden deneyin.');
+      md.className = 'durum ok'; md.textContent = 'Alındı, teşekkürler. Konu sıraya girdi.';
+      mm.value = ''; $('merak-sayac').textContent = '0';
+    } catch (err) {
+      md.className = 'durum hata'; md.textContent = err.message;
+    } finally { mg.disabled = false; }
   });
 
   ciz();
@@ -453,7 +515,26 @@ td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
       ${enCok.length ? `<div class="tablo"><table><thead><tr><th>Kart</th><th></th><th class="sayi">Açılma</th></tr></thead><tbody>
         ${enCok.map((k) => `<tr><td>${esc(k.baslik)}</td><td><span class="cubuk" style="width:${Math.round(160 * k.adet / maxK)}px"></span></td><td class="sayi">${k.adet}</td></tr>`).join('')}
       </tbody></table></div>` : '<p style="color:var(--murekkep3)">Henüz kart açılmadı.</p>'}
+      <div class="st-baslik">Merak edilenler <span id="st-talep-adet" style="color:var(--murekkep3);font-size:14px"></span></div>
+      <div class="st-arac"><a href="/api/talep?kod=${PANEL_HASH.slice(6)}&format=txt" target="_blank" rel="noopener">talepler.txt olarak aç</a><button type="button" id="st-kopyala">Tümünü kopyala</button><span id="st-kopya-durum" style="font-size:12px;color:var(--murekkep3)"></span></div>
+      <ul class="st-talep" id="st-talep"><li style="color:var(--murekkep3)">Yükleniyor…</li></ul>
       <p style="color:var(--murekkep3);font-family:var(--mono);font-size:12px;margin-top:16px">Süre, sekme görünürken 30 sn aralıklarla sayılır; oturum başına en çok 20 dk.</p>`;
+    try {
+      const r = await fetch('/api/talep?kod=' + PANEL_HASH.slice(6), { cache: 'no-store' });
+      const v = await r.json();
+      if (!r.ok) throw new Error(v.hata || r.status);
+      const ul = document.getElementById('st-talep');
+      document.getElementById('st-talep-adet').textContent = `· ${v.adet}`;
+      ul.innerHTML = v.talepler.length
+        ? v.talepler.slice().reverse().map((t) => `<li><span class="z">${t.sira}. ${esc(t.zaman_tr)}</span>${esc(t.metin)}</li>`).join('')
+        : '<li style="color:var(--murekkep3)">Henüz talep yok.</li>';
+      document.getElementById('st-kopyala').addEventListener('click', async () => {
+        const metin = v.talepler.map((t) => `${t.sira}. [${t.zaman_tr}] ${t.metin}`).join('\n');
+        try { await navigator.clipboard.writeText(metin); document.getElementById('st-kopya-durum').textContent = 'Kopyalandı.'; } catch (e) { document.getElementById('st-kopya-durum').textContent = 'Kopyalanamadı.'; }
+      });
+    } catch (e) {
+      document.getElementById('st-talep').innerHTML = `<li style="color:var(--kritik)">Talepler alınamadı: ${esc(e.message)}</li>`;
+    }
   }
   if (location.hash === PANEL_HASH) panel();
   window.addEventListener('hashchange', () => { if (location.hash === PANEL_HASH) panel(); });

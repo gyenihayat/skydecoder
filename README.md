@@ -10,6 +10,8 @@ meteoKnowledge/
 ├── README.md                     ← bu dosya
 ├── build.py                      ← kartlar/*.md → site/index.html + site/kartlar.json
 ├── template.html                 ← sayfa tasarımı ve etkileşimi (build.py veriyi içine gömer)
+├── api/talep.js                  ← "Merak ettikleriniz" talepleri (Vercel Blob'a yazar, panel/txt olarak okur)
+├── talepler.py                   ← talepleri talepler.txt'ye indirir
 ├── vercel.json
 ├── KART_SABLONU.md               ← yeni kart yazarken / AI agent üretirken kullanılacak şablon
 └── kartlar/
@@ -62,3 +64,13 @@ python3 build.py        # site/index.html ve site/kartlar.json üretir
 Kaynak: https://github.com/gyenihayat/skydecoder
 Yayın: https://skydecoder.vercel.app — `main` dalına her push Vercel'de otomatik yayınlanır.
 İstatistik: Abacus sayaç servisi (abacus.jasoncameron.dev, ad alanı `skydecoder-vercel`); sunucu yok. Gizli panel `#stat-<kod>` ekiyle açılır, sayfada bağlantı yok.
+
+## Merak ettikleriniz (ziyaretçi talepleri)
+
+Sitenin altındaki formdan gelen konular Vercel Blob deposunda (`skydecoder-talepler`) saklanır.
+
+```
+python3 talepler.py     # talepleri sırayla talepler.txt dosyasına indirir
+```
+
+Aynı liste gizli istatistik panelinde de görünür. Bir talebi karta dönüştürdükten sonra ilgili `kartlar/*.md` dosyasına ekleyip `python3 build.py` çalıştırın.

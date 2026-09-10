@@ -1,0 +1,8 @@
+{
+  "name": "skydecoder",
+  "private": true,
+  "description": "Sky Decoder — hava okuryazarlığı bilgi kartları",
+  "dependencies": {
+    "@vercel/blob": "^1.1.1"
+  }
+}

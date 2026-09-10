@@ -166,8 +166,6 @@ tbody tr:last-child td { border-bottom: 0; }
 .d-nav button:hover:not(:disabled) { color: var(--murekkep); border-color: var(--murekkep3); }
 .d-nav button:disabled { opacity: .4; cursor: default; }
 
-footer.dip a { color: var(--vurgu-metin); }
-footer.dip { max-width: 1180px; margin: 0 auto; padding: 0 24px 40px; font-size: 12.5px; color: var(--murekkep3); font-family: var(--mono); }
 
 @media (max-width: 640px) {
   .ust { padding: 28px 16px 8px; }
@@ -217,7 +215,6 @@ footer.dip { max-width: 1180px; margin: 0 auto; padding: 0 24px 40px; font-size:
   <div class="izgara" id="izgara"></div>
 </main>
 
-<footer class="dip" id="dip"></footer>
 
 <dialog id="dialog" aria-labelledby="d-baslik">
   <div class="d-ic" id="d-ic"></div>
@@ -262,7 +259,6 @@ footer.dip { max-width: 1180px; margin: 0 auto; padding: 0 24px 40px; font-size:
     `<span><span class="nokta" style="background:var(--uyari)"></span><b>${sayim.orta}</b> orta</span>` +
     (sayim.dusuk ? `<span><span class="nokta" style="background:var(--kritik)"></span><b>${sayim.dusuk}</b> düşük</span>` : '') +
     `<span>son doğrulama <b>${tarih(VERI.son_dogrulama)}</b></span>`;
-  $('dip').innerHTML = `kartlar/*.md → build.py → bu sayfa · üretim ${VERI.uretim.replace('T', ' ')} · <a href="/istatistik">istatistik</a>`;
 
   // ---- kategori çipleri ----
   const katKap = $('kategoriler');

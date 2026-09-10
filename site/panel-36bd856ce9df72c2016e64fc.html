@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>İstatistik · Sky Decoder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -75,7 +76,8 @@ tbody tr:last-child td { border-bottom: 0; }
   const baslik = (id) => id.replace(/-/g, ' ');
   let v;
   try {
-    const r = await fetch('/api/istatistik', { cache: 'no-store' });
+    const anahtar = location.pathname.split('panel-')[1] || '';
+    const r = await fetch('/api/istatistik?anahtar=' + encodeURIComponent(anahtar), { cache: 'no-store' });
     v = await r.json();
     if (!r.ok) throw new Error(v.hata || r.status);
   } catch (e) {

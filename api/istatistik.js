@@ -62,6 +62,11 @@ module.exports = async (req, res) => {
       return;
     }
 
+    const anahtar = (req.query && req.query.anahtar) || '';
+    if (!process.env.ISTATISTIK_ANAHTAR || anahtar !== process.env.ISTATISTIK_ANAHTAR) {
+      res.status(404).json({ hata: 'Bulunamadı.' });
+      return;
+    }
     const gs = gunler(GUN_SAYISI);
     const cmds = [
       ['GET', 'ziyaret:toplam'], ['GET', 'ziyaretci:tekil'], ['GET', 'sure:toplam'], ['GET', 'ist:baslangic'],

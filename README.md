@@ -11,7 +11,7 @@ meteoKnowledge/
 ├── build.py                      ← kartlar/*.md → site/index.html + site/kartlar.json
 ├── template.html                 ← sayfa tasarımı ve etkileşimi (build.py veriyi içine gömer)
 ├── api/istatistik.js             ← ziyaret / kalma süresi sayacı (Vercel Function + Upstash Redis)
-├── site/istatistik.html          ← istatistik sayfası
+├── site/panel-<anahtar>.html     ← gizli istatistik sayfası (bağlantı yok; anahtar ISTATISTIK_ANAHTAR env ile eşleşmeli)
 ├── vercel.json
 ├── KART_SABLONU.md               ← yeni kart yazarken / AI agent üretirken kullanılacak şablon
 └── kartlar/
@@ -63,4 +63,4 @@ python3 build.py        # site/index.html ve site/kartlar.json üretir
 
 Kaynak: https://github.com/gyenihayat/skydecoder
 Yayın: https://skydecoder.vercel.app — `main` dalına her push Vercel'de otomatik yayınlanır.
-İstatistik sayfası `/istatistik`; veriyi Upstash Redis'te tutar (`KV_REST_API_URL`, `KV_REST_API_TOKEN`).
+İstatistik sayfası gizli bir yolda (`/panel-<anahtar>`); veriyi Upstash Redis'te tutar (`KV_REST_API_URL`, `KV_REST_API_TOKEN`).

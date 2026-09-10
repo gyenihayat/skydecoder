@@ -61,5 +61,6 @@ Her dosyanın başındaki YAML bloğu kategori, seviye ve etiketleri taşır. As
 python3 build.py        # site/index.html ve site/kartlar.json üretir
 ```
 
+Kaynak: https://github.com/gyenihayat/hava-okuryazarligi
 Yayın: https://hava-okuryazarligi.vercel.app — `main` dalına her push Vercel'de otomatik yayınlanır.
 İstatistik sayfası `/istatistik`; veriyi Upstash Redis'te tutar (`KV_REST_API_URL`, `KV_REST_API_TOKEN`).

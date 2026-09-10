@@ -167,6 +167,16 @@ tbody tr:last-child td { border-bottom: 0; }
 .d-nav button:disabled { opacity: .4; cursor: default; }
 
 
+/* ---------- İstatistik paneli ---------- */
+.st-kutular { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 18px; }
+.st-kutu { background: var(--yuzey2); border: 1px solid var(--cizgi2); border-radius: 8px; padding: 12px 14px; }
+.st-kutu .ad { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--murekkep3); font-weight: 600; }
+.st-kutu .deger { font-family: var(--baslik); font-size: 28px; font-weight: 500; line-height: 1.1; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.st-kutu .not { font-family: var(--mono); font-size: 11.5px; color: var(--murekkep2); margin-top: 3px; }
+.st-baslik { font-family: var(--baslik); font-weight: 500; font-size: 19px; margin: 18px 0 8px; }
+.cubuk { display: inline-block; height: 8px; background: var(--vurgu); border-radius: 2px; vertical-align: middle; min-width: 2px; opacity: .85; }
+td.sayi, th.sayi { text-align: right; font-family: var(--mono); }
+
 @media (max-width: 640px) {
   .ust { padding: 28px 16px 8px; }
   .arac-ic, main { padding-left: 16px; padding-right: 16px; }
@@ -377,35 +387,74 @@ tbody tr:last-child td { border-bottom: 0; }
   });
 })();
 </script>
-
 <script>
-// Ziyaret ve aktif süre ölçümü. Çerez yok, kişisel veri yok; yalnızca toplam sayaçlar.
+// Ziyaret, tekil ziyaretçi, aktif süre ve kart açılış sayaçları — Abacus (hesapsız, ücretsiz sayaç servisi).
+// Çerez yok, kişisel veri yok; yalnızca toplam sayaçlar. Gizli panel: #stat-cbe9k1
 (function () {
   if (location.protocol === 'file:') return;
-  const UC = '/api/istatistik';
-  const gonder = (veri) => {
-    try {
-      const blob = new Blob([JSON.stringify(veri)], { type: 'application/json' });
-      if (!(navigator.sendBeacon && navigator.sendBeacon(UC, blob))) {
-        fetch(UC, { method: 'POST', body: blob, keepalive: true }).catch(() => {});
-      }
-    } catch (e) { /* sessiz */ }
-  };
-  window.olcum = gonder;
-  let yeni = false;
-  try { if (!localStorage.getItem('olcum-ilk')) { localStorage.setItem('olcum-ilk', '1'); yeni = true; } } catch (e) {}
-  gonder({ tip: 'giris', yeni });
-  let baslangic = document.visibilityState === 'visible' ? Date.now() : null;
-  const bosalt = () => {
-    if (baslangic === null) return;
-    const sn = (Date.now() - baslangic) / 1000;
-    baslangic = null;
-    if (sn >= 1) gonder({ tip: 'sure', sn: Math.round(sn) });
-  };
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') bosalt();
-    else if (baslangic === null) baslangic = Date.now();
-  });
-  window.addEventListener('pagehide', bosalt);
+  const BASE = 'https://abacus.jasoncameron.dev', NS = 'skydecoder-vercel';
+  const PANEL_HASH = '#stat-cbe9k1';
+  const gun = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
+  const hit = (k) => fetch(`${BASE}/hit/${NS}/${k}`).catch(() => null);
+  const get = (k) => fetch(`${BASE}/get/${NS}/${k}`).then((r) => (r.ok ? r.json() : { value: 0 })).then((d) => Number(d.value) || 0).catch(() => 0);
+  const anahtar = (k) => k.slice(0, 64);
+
+  // oturum başına bir ziyaret, tarayıcı başına bir tekil ziyaretçi
+  let yeniOturum = true, yeniTarayici = false;
+  try { if (sessionStorage.getItem('sd-sayildi')) yeniOturum = false; else sessionStorage.setItem('sd-sayildi', '1'); } catch (e) {}
+  try { if (!localStorage.getItem('sd-ilk')) { localStorage.setItem('sd-ilk', '1'); yeniTarayici = true; } } catch (e) {}
+  if (yeniOturum) { hit('ziyaret'); hit('z-' + gun(new Date())); }
+  if (yeniTarayici) hit('tekil');
+
+  // aktif süre: sekme görünürken her 30 sn bir tık, oturum başına en çok 40 (20 dk)
+  let tik = 0;
+  setInterval(() => {
+    if (document.visibilityState === 'visible' && tik < 40) { tik++; hit('sure30'); hit('s-' + gun(new Date())); }
+  }, 30000);
+
+  // kart açılışları (dialog kodu window.olcum'u çağırır)
+  window.olcum = (v) => { if (v && v.tip === 'kart' && v.id) hit(anahtar('k-' + v.id)); };
+
+  // ---- gizli istatistik paneli ----
+  const VERI = JSON.parse(document.getElementById('veri').textContent);
+  const sure = (sn) => sn >= 3600 ? (sn / 3600).toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' sa' : sn >= 60 ? Math.round(sn / 60) + ' dk' : sn + ' sn';
+  const tarih = (g) => `${g.slice(6, 8)}.${g.slice(4, 6)}.${g.slice(0, 4)}`;
+  const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  async function panel() {
+    const dialog = document.getElementById('dialog');
+    const ic = document.getElementById('d-ic');
+    ic.innerHTML = '<div class="d-ust"><div class="meta"><span class="gozcu">Gizli panel</span><h2 id="d-baslik">Site istatistikleri</h2></div><button class="kapat" type="button" aria-label="Kapat" data-kapat>✕</button></div><div class="d-govde"><p style="color:var(--murekkep2)">Yükleniyor…</p></div>';
+    if (!dialog.open) dialog.showModal();
+    const gunler = []; const simdi = new Date();
+    for (let i = 0; i < 14; i++) gunler.push(gun(new Date(simdi.getTime() - i * 86400000)));
+    const kartlar = VERI.kartlar.map((k) => k.id);
+    const [ziyaret, tekil, sure30, ...rest] = await Promise.all([
+      get('ziyaret'), get('tekil'), get('sure30'),
+      ...gunler.map((g) => get('z-' + g)), ...gunler.map((g) => get('s-' + g)),
+      ...kartlar.map((id) => get(anahtar('k-' + id))),
+    ]);
+    const gz = rest.slice(0, 14), gs = rest.slice(14, 28), kz = rest.slice(28);
+    const enCok = kartlar.map((id, i) => ({ id, adet: kz[i], baslik: VERI.kartlar[i].baslik })).filter((k) => k.adet > 0).sort((a, b) => b.adet - a.adet).slice(0, 10);
+    const maxZ = Math.max(1, ...gz), maxK = Math.max(1, ...enCok.map((k) => k.adet));
+    const son7 = gz.slice(0, 7).reduce((a, b) => a + b, 0);
+    ic.querySelector('.d-govde').innerHTML = `
+      <div class="st-kutular">
+        <div class="st-kutu"><div class="ad">Toplam giriş</div><div class="deger">${ziyaret.toLocaleString('tr-TR')}</div><div class="not">oturum başına bir</div></div>
+        <div class="st-kutu"><div class="ad">Tekil ziyaretçi</div><div class="deger">${tekil.toLocaleString('tr-TR')}</div><div class="not">tarayıcı başına bir</div></div>
+        <div class="st-kutu"><div class="ad">Bugün</div><div class="deger">${gz[0].toLocaleString('tr-TR')}</div><div class="not">son 7 gün ${son7.toLocaleString('tr-TR')}</div></div>
+        <div class="st-kutu"><div class="ad">Ort. kalma süresi</div><div class="deger">${ziyaret ? sure(Math.round(sure30 * 30 / ziyaret)) : '—'}</div><div class="not">toplam ${sure(sure30 * 30)}</div></div>
+      </div>
+      <div class="st-baslik">Son 14 gün</div>
+      <div class="tablo"><table><thead><tr><th>Gün</th><th>Giriş</th><th class="sayi">Sayı</th><th class="sayi">Ort. süre</th></tr></thead><tbody>
+        ${gunler.map((g, i) => `<tr><td>${tarih(g)}</td><td><span class="cubuk" style="width:${Math.round(160 * gz[i] / maxZ)}px"></span></td><td class="sayi">${gz[i]}</td><td class="sayi">${gz[i] ? sure(Math.round(gs[i] * 30 / gz[i])) : '—'}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="st-baslik">En çok açılan kartlar</div>
+      ${enCok.length ? `<div class="tablo"><table><thead><tr><th>Kart</th><th></th><th class="sayi">Açılma</th></tr></thead><tbody>
+        ${enCok.map((k) => `<tr><td>${esc(k.baslik)}</td><td><span class="cubuk" style="width:${Math.round(160 * k.adet / maxK)}px"></span></td><td class="sayi">${k.adet}</td></tr>`).join('')}
+      </tbody></table></div>` : '<p style="color:var(--murekkep3)">Henüz kart açılmadı.</p>'}
+      <p style="color:var(--murekkep3);font-family:var(--mono);font-size:12px;margin-top:16px">Süre, sekme görünürken 30 sn aralıklarla sayılır; oturum başına en çok 20 dk.</p>`;
+  }
+  if (location.hash === PANEL_HASH) panel();
+  window.addEventListener('hashchange', () => { if (location.hash === PANEL_HASH) panel(); });
 })();
 </script>
